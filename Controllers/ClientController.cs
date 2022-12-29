@@ -2,6 +2,7 @@
 using ASP_API_EF.Interfaces;
 using ASP_API_EF.Models;
 using ASP_API_EF.Services;
+using Azure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,95 +14,39 @@ namespace ASP_API_EF.Controllers
     {
         private readonly ICrud<Client> GatewayClient;
 
-        //private readonly ICrud<Location> GateWayLocation;
-
         public ClientController(ICrud<Client> gateway) => this.GatewayClient = gateway;
 
         [HttpGet]
         public async Task<List<Client>> GetClients() => await GatewayClient.GetAll();
 
-        [HttpPost]
-        public async Task<object> CreateClient(Client client) {
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<ActionResult<object>> GetClientById(int id) => await GatewayClient.GetById(id);
 
-            return await GatewayClient.Create(client);
+        [HttpPost]
+        [Route("add")]
+        public async Task<ActionResult<Client>> AddNewClient([FromBody] Client Model)
+        {
+            var client = await GatewayClient.Create(Model);
+            return Ok(client);
         }
 
+        [HttpPut]
+        [Route("update")]
+        public async Task<ActionResult<object>> UpdateClient([FromBody] Client Model)
+        {
+            var clientUpdated = await GatewayClient.Update(Model);
+            if (clientUpdated != null) return Ok(clientUpdated);
+            else return NotFound("Client no found");
+        }
 
-        //// GET: api/Clients/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Client>> GetClient(int id)
-        //{
-        //    var client = await _context.Clients.FindAsync(id);
-
-        //    if (client == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return client;
-        //}
-
-        //// PUT: api/Clients/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutClient(int id, Client client)
-        //{
-        //    if (id != client.Id)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    _context.Entry(client).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!ClientExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
-
-        //// POST: api/Clients
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<Client>> PostClient(Client client)
-        //{
-        //    _context.Clients.Add(client);
-        //    await _context.SaveChangesAsync();
-
-        //    return CreatedAtAction("GetClient", new { id = client.Id }, client);
-        //}
-
-        //// DELETE: api/Clients/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteClient(int id)
-        //{
-        //    var client = await _context.Clients.FindAsync(id);
-        //    if (client == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    _context.Clients.Remove(client);
-        //    await _context.SaveChangesAsync();
-
-        //    return NoContent();
-        //}
-
-        //private bool ClientExists(int id)
-        //{
-        //    return _context.Clients.Any(e => e.Id == id);
-        //}
+        [HttpDelete]
+        [Route("del")]
+        public async Task<ActionResult<object>> DeleteClient(int idClient)
+        {
+            var response = await GatewayClient.DeleteById(idClient);
+            if (response != null) return Ok(response);
+            else return NotFound("Client no found");
+        }
     }
 }

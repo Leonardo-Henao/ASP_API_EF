@@ -7,11 +7,12 @@ namespace ASP_API_EF.Models
     public class Location
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         public string Name { get; set; }
 
         public string Capital { get; set; }
+        [JsonIgnore]
+        public List<Client> Clients { get; set; }
     }
 }

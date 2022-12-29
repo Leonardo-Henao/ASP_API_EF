@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ASP_API_EF.Interfaces
 {
@@ -6,12 +7,12 @@ namespace ASP_API_EF.Interfaces
     {
         Task<List<T>> GetAll();
 
-        Task<ActionResult<object>> GetById(int id);
+        Task<T> GetById(int id);
 
-        Task<ActionResult<object>> Create(T Model);
+        Task<T> Create(T Model);
 
-        Task<ActionResult<T>> Update(T Model);
+        Task<T> Update(T Model);
 
-        Task<ActionResult<object>> DeleteById(int id);
+        Task<T> DeleteById(int id);
     }
 }

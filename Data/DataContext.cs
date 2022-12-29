@@ -5,11 +5,17 @@ namespace ASP_API_EF.Data
 {
     public class DataContext : DbContext
     {
-        public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
-        public DbSet<Client> Clients { get; set; }
+        public DataContext() { }
 
-        public DbSet<Location> Locations { get; set; }
+        public DataContext(DbContextOptions options): base(options)
+        {
+         
+        }
+
+        public virtual DbSet<Client> Clients { get; set; }
+
+        public virtual DbSet<Location> Locations { get; set; }
 
         // Si queremos que al momento de mostrar nuestros datos no se muestre el nombre en plural (Clients o Locations)
         // Sobreescribimos el metodo OnModelCreating de la clase DbContext

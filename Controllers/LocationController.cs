@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ASP_API_EF.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using ASP_API_EF.Models;
 using ASP_API_EF.Interfaces;
+using Azure;
 
 namespace ASP_API_EF.Controllers
 {
@@ -20,90 +14,36 @@ namespace ASP_API_EF.Controllers
         public LocationController(ICrud<Location> gateway) => this.Gateway = gateway;
 
         [HttpGet]
-        public async Task<ActionResult<List<Location>>> GetAll() =>
-            await Gateway.GetAll();
-
+        public async Task<ActionResult<List<Location>>> GetAllLocations() => await Gateway.GetAll();
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<ActionResult<object>> GetById(int id) =>
-            await Gateway.GetById(id);
+        public async Task<ActionResult<object>> GetLocationById(int id) => await Gateway.GetById(id);
 
-        //    // GET: api/Locations/5
-        //    [HttpGet("{id}")]
-        //    public async Task<ActionResult<Location>> GetLocation(int id)
-        //    {
-        //        var location = await _context.Locations.FindAsync(id);
+        [HttpPost]
+        [Route("add")]
+        public async Task<ActionResult<Location>> AddNewLocation([FromBody] Location Model)
+        {
+            var location = await Gateway.Create(Model);
+            return Ok(location);
+        }
 
-        //        if (location == null)
-        //        {
-        //            return NotFound();
-        //        }
+        [HttpPut]
+        [Route("update")]
+        public async Task<ActionResult<object>> UpdateLocation([FromBody] Location Model)
+        {
+            var locationUpdated = await Gateway.Update(Model);
+            if (locationUpdated != null) return Ok(locationUpdated);
+            else return NotFound("Location no found");
+        }
 
-        //        return location;
-        //    }
-
-        //    // PUT: api/Locations/5
-        //    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //    [HttpPut("{id}")]
-        //    public async Task<IActionResult> PutLocation(int id, Location location)
-        //    {
-        //        if (id != location.Id)
-        //        {
-        //            return BadRequest();
-        //        }
-
-        //        _context.Entry(location).State = EntityState.Modified;
-
-        //        try
-        //        {
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!LocationExists(id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-
-        //        return NoContent();
-        //    }
-
-        //    // POST: api/Locations
-        //    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //    [HttpPost]
-        //    public async Task<ActionResult<Location>> PostLocation(Location location)
-        //    {
-        //        _context.Locations.Add(location);
-        //        await _context.SaveChangesAsync();
-
-        //        return CreatedAtAction("GetLocation", new { id = location.Id }, location);
-        //    }
-
-        //    // DELETE: api/Locations/5
-        //    [HttpDelete("{id}")]
-        //    public async Task<IActionResult> DeleteLocation(int id)
-        //    {
-        //        var location = await _context.Locations.FindAsync(id);
-        //        if (location == null)
-        //        {
-        //            return NotFound();
-        //        }
-
-        //        _context.Locations.Remove(location);
-        //        await _context.SaveChangesAsync();
-
-        //        return NoContent();
-        //    }
-
-        //    private bool LocationExists(int id)
-        //    {
-        //        return _context.Locations.Any(e => e.Id == id);
-        //    }
+        [HttpDelete]
+        [Route("del")]
+        public async Task<ActionResult<object>> DeleteLocation(int idLocation)
+        {
+            var response = await Gateway.DeleteById(idLocation);
+            if (response != null) return Ok("Location deleted " + response.Name);
+            else return NotFound("Location no found");
+        }
     }
 }
